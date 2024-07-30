@@ -1,0 +1,53 @@
+pipeline{
+    agent any
+    environment{
+        MAVEN_HOME = tool 'Maven-3.9.0'
+    }
+    // parameters {
+    //     string(name: 'MAVEN_GOALS', defaultValue: 'clean install', description: 'Maven goals to execute')
+    //     string(name: 'MAVEN_OPTIONS', defaultValue: '', description: 'Additional Maven options')
+    // }
+    stages{
+        stage('Checkout'){
+            steps{
+                git url: 'https://github.com/siddh2303/private-repo.git', branch: 'main', credentialsId: 'gitcard'
+            }
+        }
+
+        stage('Build'){
+            steps{
+                script{
+                        withEnv(["PATH+MAVEN=${MAVEN_HOME}/bin"]){
+                        //sh 'mvn ${params.MAVEN_GOALS}'
+                        sh 'mvn clean install'
+                    }
+                }
+            }
+        }
+        stage('Test'){
+            steps{
+                script{
+                        withEnv(["PATH+MAVEN=${MAVEN_HOME}/bin"]){
+                        echo 'In Testing Environment'
+                    }
+                }
+            }
+        }
+        stage('Archive Artifacts'){
+            steps{
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+            }
+        }
+    }
+    post{
+        always{
+            echo 'Pipeline Finished.'
+        }
+        success{
+            echo 'Pipeline Succeeded.'
+        }
+        failure{
+            echo 'Pipeline Failed.'
+        }
+    }
+}

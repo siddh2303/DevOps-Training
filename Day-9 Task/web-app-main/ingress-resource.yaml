@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kuberenetes.io/ssl-redirect: "true"
+
+spec:
+  tls:
+  - hosts:
+    - myapp.local
+    secretName: tls-secret
+  rules:
+  - host: myapp.local
+    http:
+      paths:
+      - path: /frontend
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+      - path: /backend
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 5678
+  - host: localhost
+    http:
+      paths:
+      - path: /maps
+        pathType: Prefix
+        backend:
+          service:
+            name: maps-service
+            port:
+              number: 80
+      - path: /drive
+        pathType: Prefix
+        backend:
+          service:
+            name: drive-service
+            port:
+              number: 80
+
