@@ -1,0 +1,32 @@
+---
+- name: Automate Repetitive Tasks
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install nginx package
+      apt:
+        name: nginx
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Configure nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Create a sample file
+      copy:
+        content: "This is a sample file created by Ansible."
+        dest: /tmp/sample_file.txt
+
+    - name: Modify the sample file
+      lineinfile:
+        path: /tmp/sample_file.txt
+        line: "This line is added by Ansible."
+
+    - name: Delete the sample file
+      file:
+        path: /tmp/sample_file.txt
+        state: absent
