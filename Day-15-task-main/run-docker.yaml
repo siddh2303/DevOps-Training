@@ -1,0 +1,13 @@
+---
+- name: Run Docker Container
+  hosts: all
+  become: yes
+  tasks:
+    - name: Run the web application container
+      docker_container:
+        name: web-application
+        image: siddhpatel/web-application
+        state: started
+        restart_policy: always
+        ports:
+          - "8080:8080"
