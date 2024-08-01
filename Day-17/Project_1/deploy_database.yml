@@ -1,0 +1,61 @@
+- name: Performing Day_17_Project_1
+  hosts: web
+  gather_facts: no
+  become: yes
+  vars:
+    mysql_custom_settings:
+      max_connections: 200
+      query_cache_size: 16M
+
+  tasks:
+    - name: update cache as apt-get update
+      apt:
+        update_cache: yes
+
+    - name: install mysql and its dependencies
+      apt:
+        name: ['mysql-server', 'mysql-client', 'python3-mysqldb', 'libmysqlclient-dev']
+        state: present
+
+    - name: enable the service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: create a user in the database
+      mysql_user:
+        name: siddh
+        password: siddh1234
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+
+# mysql -u siddh -p
+# priv: '*.*:ALL' means user fansari will have all privileges (ALL) on all databases (*) and all tables (*).
+# host: '%' means This specifies from which hosts the user can connect. The wildcard character % means the user can connect from any host.
+
+    - name: changing mysql configuration file using template
+      template:
+        src: "/home/einfochips/DevOps Training/DevOps-Training/Day-17/Project_1/templates/my.cnf.j2"
+        dest: "/etc/mysql/my.cnf.j2"
+      notify:
+        - restart mysql
+
+    - name: copy the script
+      ansible.builtin.copy:
+        src: "/home/einfochips/DevOps Training/DevOps-Training/Day-17/Project_1/scripts/backup.sh"
+        dest: "/home/ubuntu/backup.sh"
+        mode: '777'
+
+    - name: Set up cron job for database backup
+      cron:
+        name: "Daily MySQL Backup"
+        minute: "*/30"
+        job: /home/ubuntu/backup.sh
+
+  handlers:
+    - name: restart mysql
+      service:
+        name: mysql
+        state: restarted

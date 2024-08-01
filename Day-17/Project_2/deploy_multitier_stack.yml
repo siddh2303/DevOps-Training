@@ -1,0 +1,108 @@
+---
+- hosts: database_server
+  become: yes
+  vars:
+    mysql_root_password: "siddh1234"
+    mysql_database: "webapp_db"
+    mysql_user: "webapp_user"
+    mysql_password: "siddh1234"
+  tasks:
+    - name: update cache as apt-get update
+      apt:
+        update_cache: yes
+
+    - name: install mysql and its dependencies
+      apt:
+        name: ['mysql-server', 'mysql-client', 'python3-mysqldb', 'libmysqlclient-dev']
+        state: present
+
+    - name: enable the service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+                
+    - name: Create MySQL database
+      mysql_db:
+        name: "{{ mysql_database }}"
+        state: present
+
+    - name: Create MySQL user
+      mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        priv: "{{ mysql_database }}.*:ALL"
+        state: present
+
+- hosts: application_server
+  become: yes
+  vars:
+    app_repo_url: "/home/einfochips/DevOps Training/DevOps-Training/Day-17/Project_2/files/index.html"
+    app_directory: "/var/www/html/"
+    db_host: "{{ hostvars['db_server']['ansible_host'] }}"
+    db_name: "webapp_db"
+    db_user: "webapp_user"
+    db_password: "secure_user_password"
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: present
+
+    - name: Install PHP and extensions
+      apt:
+        name:
+          - php
+          - php-mysql
+          - libapache2-mod-php
+        state: present
+
+    - name: Ensure Apache is started and enabled
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    # - name: Install Git
+    #   apt:
+    #     name: git
+    #     state: present
+
+    - name: Copy Web Application
+      ansible.builtin.copy:
+        src: "{{ app_repo_url }}"
+        dest: "{{ app_directory }}"
+
+    # - name: Clone web application repository
+    #   git:
+    #     repo: "{{ app_repo_url }}"
+    #     dest: "{{ app_directory }}"
+    #     update: yes
+
+    - name: Deploy Apache configuration file
+      template:
+        src: templates/apache2.conf.j2
+        dest: /etc/apache2/apache2.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+        - Restart Apache
+
+
+    - name: Ensure appropriate permissions for application directory
+      file:
+        path: "{{ app_directory }}"
+        owner: www-data
+        group: www-data
+        state: directory
+        recurse: yes
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
