@@ -1,0 +1,12 @@
+plugin: aws_ec2
+regions:
+  - us-west-1
+filters:
+  instance-state-name:
+    - running
+  tag:Name:
+    - Siddh
+hostnames:
+  - dns-name
+compose:
+  ansible_host: public_dns_name

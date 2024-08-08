@@ -1,0 +1,16 @@
+---
+- name: Optimize Deployment
+  hosts: all
+  tasks:
+    - name: Ensure the web server is running
+      service:
+        name: nginx
+        state: started
+      failed_when: result is failed
+      ignore_errors: yes
+      register: result
+
+    - name: Log error if web server failed to start
+      debug:
+        msg: "Failed to start nginx"
+      when: result is failed
