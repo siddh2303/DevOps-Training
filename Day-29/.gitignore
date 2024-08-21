@@ -1,4 +1,5 @@
 .terraform
 .terraform.lock.hcl
 modules/ec2/variables.tf
+modules/ec2/terraform.tfvars
 modules/s3/variables.tf
