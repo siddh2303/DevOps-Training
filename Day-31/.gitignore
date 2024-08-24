@@ -1,0 +1,10 @@
+.terraform
+.terraform.lock.hcl
+modules/ec2/variables.tf
+modules/rds/variables.tf
+modules/s3/variables.tf
+modules/security/variables.tf
+modules/vpc/variables.tf
+variables.tf
+dev.tfvars
+prod.tfvars
