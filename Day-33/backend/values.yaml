@@ -1,0 +1,11 @@
+image:
+  repository: "siddhpatel/flask-api"
+  tag: "latest"
+env:
+  dbMaxConnections: "100"
+  dbConnectionTimeout: "30s"
+secrets:
+  db_host: "siddh-mydb.us-east-2.rds.amazonaws.com"
+  db_user: "admin"
+  db_password: "password"
+  db_name: "mydatabase"
