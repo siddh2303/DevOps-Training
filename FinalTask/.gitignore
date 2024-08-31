@@ -1,0 +1,8 @@
+modules/ec2/variables.tf
+modules/s3/variables.tf
+modules/security/variables.tf
+modules/vpc/variables.tf
+roles/mysql/vars
+roles/nginx/vars
+roles/nodejs/vars
+variables.tf

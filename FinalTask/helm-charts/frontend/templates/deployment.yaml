@@ -1,0 +1,16 @@
+initContainers:
+- name: download-s3-content
+  image: amazon/aws-cli
+  command: ["/bin/sh", "-c"]
+  args: ["aws s3 sync s3://{{ .Values.s3BucketName }} /usr/share/nginx/html"]
+  env:
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: s3-secrets
+        key: accessKey
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: s3-secrets
+        key: secretKey
